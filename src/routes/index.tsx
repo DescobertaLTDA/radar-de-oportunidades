@@ -3,6 +3,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Ticker } from "@/components/layout/Ticker";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/landing/Hero";
+import { AppGrid } from "@/components/landing/AppGrid";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { LiveRanking } from "@/components/landing/LiveRanking";
 import { Metrics } from "@/components/landing/Metrics";
@@ -32,6 +33,7 @@ function Home() {
       <Ticker />
       <main>
         <Hero />
+        <AppGrid />
         <HowItWorks />
         <LiveRanking />
         <Metrics />

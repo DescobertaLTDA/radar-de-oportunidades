@@ -1,0 +1,248 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-muted: var(--primary-muted);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --shadow-glow: 0 0 40px -8px oklch(0.62 0.22 285 / 0.45);
+  --shadow-card: 0 1px 0 0 oklch(1 0 0 / 0.03) inset, 0 12px 32px -16px oklch(0 0 0 / 0.6);
+
+  --animate-ticker: ticker 35s linear infinite;
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-fade-in-up: fade-in-up 0.6s ease-out both;
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.6); opacity: 0.4; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* PainRadar — Dark Intelligence (single theme; mapped to oklch) */
+  --background: oklch(0.13 0.02 280);          /* #0D0D14 */
+  --foreground: oklch(0.96 0.01 280);          /* #F0EFF8 */
+  --bg-secondary: oklch(0.17 0.025 280);       /* #13121F */
+
+  --card: oklch(0.20 0.03 280);                /* #1A1929 */
+  --card-foreground: oklch(0.96 0.01 280);
+
+  --popover: oklch(0.20 0.03 280);
+  --popover-foreground: oklch(0.96 0.01 280);
+
+  --primary: oklch(0.62 0.22 285);             /* #6C63FF */
+  --primary-foreground: oklch(0.99 0.005 280);
+  --primary-hover: oklch(0.56 0.22 285);       /* #5A52E0 */
+  --primary-muted: oklch(0.62 0.22 285 / 0.12);
+
+  --secondary: oklch(0.22 0.03 280);
+  --secondary-foreground: oklch(0.96 0.01 280);
+
+  --muted: oklch(0.20 0.03 280);
+  --muted-foreground: oklch(0.55 0.04 280);    /* #6B6A80 */
+
+  --accent: oklch(0.78 0.10 285);              /* #A89CFF */
+  --accent-foreground: oklch(0.13 0.02 280);
+
+  --destructive: oklch(0.62 0.22 22);          /* #E24B4A */
+  --destructive-foreground: oklch(0.99 0.005 280);
+
+  --success: oklch(0.65 0.14 165);             /* #1D9E75 */
+  --warning: oklch(0.76 0.15 70);              /* #F59E0B */
+  --danger: oklch(0.62 0.22 22);
+
+  --border: oklch(0.28 0.04 285);              /* #2A2840 */
+  --input: oklch(0.17 0.025 280);
+  --ring: oklch(0.62 0.22 285);
+
+  --text-secondary: oklch(0.78 0.10 285);      /* #A89CFF */
+  --text-muted: oklch(0.55 0.04 280);
+
+  --chart-1: oklch(0.62 0.22 285);
+  --chart-2: oklch(0.78 0.10 285);
+  --chart-3: oklch(0.65 0.14 165);
+  --chart-4: oklch(0.76 0.15 70);
+  --chart-5: oklch(0.62 0.22 22);
+
+  --sidebar: oklch(0.17 0.025 280);
+  --sidebar-foreground: oklch(0.96 0.01 280);
+  --sidebar-primary: oklch(0.62 0.22 285);
+  --sidebar-primary-foreground: oklch(0.99 0.005 280);
+  --sidebar-accent: oklch(0.20 0.03 280);
+  --sidebar-accent-foreground: oklch(0.96 0.01 280);
+  --sidebar-border: oklch(0.28 0.04 285);
+  --sidebar-ring: oklch(0.62 0.22 285);
+}
+
+.dark {
+  /* PainRadar é dark-only: aliases para a mesma paleta */
+  --background: oklch(0.13 0.02 280);
+  --foreground: oklch(0.96 0.01 280);
+  --bg-secondary: oklch(0.17 0.025 280);
+  --card: oklch(0.20 0.03 280);
+  --card-foreground: oklch(0.96 0.01 280);
+  --popover: oklch(0.20 0.03 280);
+  --popover-foreground: oklch(0.96 0.01 280);
+  --primary: oklch(0.62 0.22 285);
+  --primary-foreground: oklch(0.99 0.005 280);
+  --primary-hover: oklch(0.56 0.22 285);
+  --primary-muted: oklch(0.62 0.22 285 / 0.12);
+  --secondary: oklch(0.22 0.03 280);
+  --secondary-foreground: oklch(0.96 0.01 280);
+  --muted: oklch(0.20 0.03 280);
+  --muted-foreground: oklch(0.55 0.04 280);
+  --accent: oklch(0.78 0.10 285);
+  --accent-foreground: oklch(0.13 0.02 280);
+  --destructive: oklch(0.62 0.22 22);
+  --destructive-foreground: oklch(0.99 0.005 280);
+  --success: oklch(0.65 0.14 165);
+  --warning: oklch(0.76 0.15 70);
+  --danger: oklch(0.62 0.22 22);
+  --border: oklch(0.28 0.04 285);
+  --input: oklch(0.17 0.025 280);
+  --ring: oklch(0.62 0.22 285);
+  --text-secondary: oklch(0.78 0.10 285);
+  --text-muted: oklch(0.55 0.04 280);
+  --chart-1: oklch(0.62 0.22 285);
+  --chart-2: oklch(0.78 0.10 285);
+  --chart-3: oklch(0.65 0.14 165);
+  --chart-4: oklch(0.76 0.15 70);
+  --chart-5: oklch(0.62 0.22 22);
+  --sidebar: oklch(0.17 0.025 280);
+  --sidebar-foreground: oklch(0.96 0.01 280);
+  --sidebar-primary: oklch(0.62 0.22 285);
+  --sidebar-primary-foreground: oklch(0.99 0.005 280);
+  --sidebar-accent: oklch(0.20 0.03 280);
+  --sidebar-accent-foreground: oklch(0.96 0.01 280);
+  --sidebar-border: oklch(0.28 0.04 285);
+  --sidebar-ring: oklch(0.62 0.22 285);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.7;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  ::selection {
+    background: var(--primary-muted);
+    color: var(--foreground);
+  }
+}
+
+@layer utilities {
+  .label-caps {
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, oklch(1 0 0 / 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 0.03) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .radial-glow {
+    background: radial-gradient(ellipse at top, oklch(0.62 0.22 285 / 0.18), transparent 60%);
+  }
+
+  .pulse-dot {
+    position: relative;
+  }
+  .pulse-dot::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: var(--primary);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+}

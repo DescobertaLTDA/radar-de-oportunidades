@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh auth *)",
+      "Bash(where gh *)",
+      "Bash(gh.exe auth *)",
+      "PowerShell(Get-Command gh -ErrorAction SilentlyContinue)",
+      "PowerShell(gh auth status 2>&1)",
+      "PowerShell(& \"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" auth status 2>&1)",
+      "PowerShell(& \"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" repo list DescobertaLTDA --limit 20 2>&1)"
+    ]
+  }
+}

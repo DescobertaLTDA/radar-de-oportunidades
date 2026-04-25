@@ -1,0 +1,159 @@
+/**
+ * Scrapes top apps from Google Play across multiple niches,
+ * downloads their icons to public/apps/, and generates src/data/apps.ts
+ *
+ * Usage: node scripts/scrape-apps.mjs
+ */
+
+import gplay from 'google-play-scraper';
+import { createWriteStream, existsSync, mkdirSync, writeFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import https from 'https';
+import http from 'http';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT       = join(__dirname, '..');
+const ICONS_DIR  = join(ROOT, 'public', 'apps');
+const OUT_FILE   = join(ROOT, 'src', 'data', 'apps.ts');
+
+if (!existsSync(ICONS_DIR)) mkdirSync(ICONS_DIR, { recursive: true });
+
+/* ── Categories to scrape ──────────────────────────────────────── */
+const CATEGORIES = [
+  { id: gplay.category.PRODUCTIVITY,    label: 'Produtividade'   },
+  { id: gplay.category.FINANCE,         label: 'Finanças'        },
+  { id: gplay.category.HEALTH_AND_FITNESS, label: 'Saúde & Fitness' },
+  { id: gplay.category.FOOD_AND_DRINK,  label: 'Alimentação'     },
+  { id: gplay.category.TRAVEL_AND_LOCAL,label: 'Viagem'          },
+  { id: gplay.category.EDUCATION,       label: 'Educação'        },
+  { id: gplay.category.SOCIAL,          label: 'Social'          },
+  { id: gplay.category.SHOPPING,        label: 'Compras'         },
+  { id: gplay.category.BUSINESS,        label: 'Negócios'        },
+  { id: gplay.category.ENTERTAINMENT,   label: 'Entretenimento'  },
+  { id: gplay.category.MEDICAL,         label: 'Medicina'        },
+  { id: gplay.category.SPORTS,          label: 'Esportes'        },
+];
+
+/* ── Helpers ───────────────────────────────────────────────────── */
+function slug(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+function downloadFile(url, dest) {
+  return new Promise((resolve, reject) => {
+    if (existsSync(dest)) return resolve(dest);
+    const proto = url.startsWith('https') ? https : http;
+    const file = createWriteStream(dest);
+    proto.get(url, res => {
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        file.close();
+        return downloadFile(res.headers.location, dest).then(resolve).catch(reject);
+      }
+      res.pipe(file);
+      file.on('finish', () => file.close(() => resolve(dest)));
+    }).on('error', err => { file.close(); reject(err); });
+  });
+}
+
+function formatInstalls(raw) {
+  if (!raw) return '?';
+  const n = parseInt(raw.replace(/\D/g, ''), 10);
+  if (isNaN(n)) return raw;
+  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}B+`;
+  if (n >= 1_000_000)     return `${(n / 1_000_000).toFixed(0)}M+`;
+  if (n >= 1_000)         return `${(n / 1_000).toFixed(0)}K+`;
+  return String(n);
+}
+
+/* Simple pain score: inverse of rating (low rating + high installs = high pain) */
+function painScore(rating, installs) {
+  const r = rating || 3;
+  const i = parseInt((installs || '').replace(/\D/g, ''), 10) || 0;
+  const rScore = Math.round((5 - r) * 20);            // 0–100 (0 = perfect, 100 = terrible)
+  const iBonus = Math.min(20, Math.round(Math.log10(i + 1) * 5)); // popularity bonus
+  return Math.min(99, Math.max(30, rScore + iBonus));
+}
+
+function trendLabel(score) {
+  if (score >= 85) return '+' + (10 + Math.floor(score / 10)) + '%';
+  if (score >= 70) return '+' + (5 + Math.floor(score / 15)) + '%';
+  return '—';
+}
+
+/* ── Main ──────────────────────────────────────────────────────── */
+const seen = new Set();
+const apps = [];
+
+console.log('🔍  Scraping Google Play…');
+
+for (const cat of CATEGORIES) {
+  console.log(`  → ${cat.label}`);
+  try {
+    const results = await gplay.list({
+      category: cat.id,
+      collection: gplay.collection.TOP_FREE,
+      num: 5,
+      lang: 'pt-BR',
+      country: 'br',
+      fullDetail: true,
+    });
+
+    for (const app of results) {
+      if (seen.has(app.appId)) continue;
+      seen.add(app.appId);
+
+      const iconSlug = slug(app.title);
+      const iconFile = `${iconSlug}.png`;
+      const iconDest = join(ICONS_DIR, iconFile);
+
+      try {
+        const iconUrl = app.icon || app.headerImage;
+        if (iconUrl) await downloadFile(iconUrl, iconDest);
+      } catch {
+        /* skip icon if download fails */
+      }
+
+      const pain = painScore(app.score, app.installs);
+
+      apps.push({
+        id:        app.appId,
+        name:      app.title,
+        category:  cat.label,
+        icon:      `/apps/${iconFile}`,
+        rating:    Math.round((app.score || 3) * 10) / 10,
+        reviews:   app.ratings || 0,
+        downloads: formatInstalls(app.installs || ''),
+        pain,
+        trend:     trendLabel(pain),
+      });
+    }
+  } catch (err) {
+    console.warn(`  ⚠ falha em ${cat.label}:`, err.message);
+  }
+}
+
+/* ── Write data file ───────────────────────────────────────────── */
+const ts = `// Auto-generated by scripts/scrape-apps.mjs — ${new Date().toISOString()}
+// Do not edit manually. Run: node scripts/scrape-apps.mjs
+
+export interface AppEntry {
+  id: string;
+  name: string;
+  category: string;
+  icon: string;
+  rating: number;
+  reviews: number;
+  downloads: string;
+  pain: number;
+  trend: string;
+}
+
+export const SCRAPED_APPS: AppEntry[] = ${JSON.stringify(apps, null, 2)};
+`;
+
+writeFileSync(OUT_FILE, ts, 'utf8');
+
+console.log(`\n✅  ${apps.length} apps scraped`);
+console.log(`📁  Ícones em:  public/apps/`);
+console.log(`📄  Dados em:   src/data/apps.ts`);

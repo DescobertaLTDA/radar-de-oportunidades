@@ -1,211 +1,211 @@
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import { Check, Play, Shield, Users, Zap, Star, TrendingUp, Download } from "lucide-react";
+import { ArrowRight, Star, TrendingUp, AlertCircle } from "lucide-react";
+import { SCRAPED_APPS } from "@/data/apps";
 
-/* ── App icon placeholder ─────────────────────────────────────── */
-function AppIcon({
-  name,
-  color,
-  size = "md",
-}: {
-  name: string;
-  color: string;
-  size?: "sm" | "md" | "lg";
-}) {
-  const sizes = { sm: "h-8 w-8 text-xs", md: "h-10 w-10 text-sm", lg: "h-12 w-12 text-base" };
-  return (
-    <div
-      className={`${sizes[size]} flex flex-shrink-0 items-center justify-center rounded-xl font-bold text-white shadow-sm`}
-      style={{ background: color }}
-    >
-      {name[0]}
-    </div>
-  );
+/* top 3 apps by reviews (most-complained) */
+const TOP = [...SCRAPED_APPS]
+  .sort((a, b) => b.reviews - a.reviews)
+  .slice(0, 3);
+
+function fmt(n: number) {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000)     return `${(n / 1_000).toFixed(0)}K`;
+  return String(n);
 }
-
-/* ── Star rating ──────────────────────────────────────────────── */
-function Stars({ rating }: { rating: number }) {
-  return (
-    <span className="inline-flex items-center gap-0.5">
-      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-      <span className="text-xs font-medium text-foreground">{rating.toFixed(1)}</span>
-    </span>
-  );
-}
-
-const APPS = [
-  { name: "Notion", category: "Produtividade", color: "#000000", rating: 3.8, downloads: "12M", pain: 91, trend: "+18%" },
-  { name: "Robinhood", category: "Finanças", color: "#00C805", rating: 3.2, downloads: "8.4M", pain: 87, trend: "+9%" },
-  { name: "Headspace", category: "Bem-estar", color: "#FF6B35", rating: 4.1, downloads: "5.1M", pain: 79, trend: "+6%" },
-];
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-border">
-      <div className="pointer-events-none absolute inset-0 grid-bg" />
-      <div className="pointer-events-none absolute inset-0 radial-glow" />
+    <section className="relative overflow-hidden hero-bg">
+      {/* grid + glow */}
+      <div className="pointer-events-none absolute inset-0 hero-grid" />
+      <div className="pointer-events-none absolute inset-0 hero-glow" />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-20 lg:grid-cols-[1.1fr_1fr] lg:px-8 lg:py-28">
-        {/* ── Left: copy ─────────────────────────────────────────── */}
+      <div className="relative mx-auto grid max-w-7xl items-center gap-16
+                      px-5 py-24 lg:grid-cols-[1.05fr_1fr] lg:px-8 lg:py-32">
+
+        {/* ── LEFT: copy ─────────────────────────────────────────── */}
         <motion.div
           initial="hidden"
           animate="show"
-          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.11 } } }}
         >
-          <motion.span
-            variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-primary-muted px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)]"
+          {/* badge */}
+          <motion.div
+            variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }}
+            className="inline-flex items-center gap-2 rounded-full border border-white/10
+                       bg-white/5 px-3.5 py-1.5 text-xs font-medium text-white/70 backdrop-blur-sm"
           >
-            <Zap className="h-3.5 w-3.5 text-primary" />
-            Inteligência de App Store em tempo real
-          </motion.span>
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#635BFF] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#635BFF]" />
+            </span>
+            {fmt(SCRAPED_APPS.reduce((s, a) => s + a.reviews, 0))} reviews analisadas essa semana
+          </motion.div>
 
+          {/* headline */}
           <motion.h1
-            variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
-            className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl"
+            variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
+            className="mt-6 text-4xl font-extrabold leading-[1.05] tracking-tight text-white
+                       sm:text-5xl lg:text-[3.6rem]"
           >
-            Descubra onde os apps
+            Seu próximo produto já
             <br />
-            <span className="bg-gradient-to-r from-primary to-[#0A2540] bg-clip-text text-transparent">
-              estão falhando.
+            existe.
+            <span className="block mt-1 bg-gradient-to-r from-[#635BFF] to-[#A78BFA]
+                             bg-clip-text text-transparent">
+              Nas reviews de 1 estrela.
             </span>
           </motion.h1>
 
+          {/* sub */}
           <motion.p
-            variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
-            className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg"
+            variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
+            className="mt-6 max-w-lg text-base leading-relaxed text-white/60 sm:text-lg"
           >
-            O PainRadar monitora avaliações, reclamações e pedidos de milhões de usuários
-            da App Store e Google Play — e entrega um ranking semanal das maiores brechas
-            de mercado, prontas para você construir.
+            O PainRadar varre milhões de avaliações do Google Play e App Store,
+            calcula onde os usuários estão mais frustrados e entrega um ranking
+            semanal de brechas de mercado — com score, downloads e stack sugerida.
           </motion.p>
 
+          {/* CTAs */}
           <motion.div
             variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
-            className="mt-8 flex flex-wrap items-center gap-3"
+            className="mt-9 flex flex-wrap items-center gap-3"
           >
             <Link
               to="/register"
-              className="inline-flex h-12 items-center gap-2 rounded-lg bg-primary px-6 text-base font-medium text-primary-foreground shadow-[var(--shadow-glow)] transition-colors hover:bg-[var(--primary-hover)]"
+              className="inline-flex h-12 items-center gap-2 rounded-lg bg-[#635BFF] px-6
+                         text-base font-semibold text-white shadow-[0_0_32px_-4px_#635BFF88]
+                         transition-all hover:bg-[#4B44E0] hover:shadow-[0_0_40px_-4px_#635BFFAA]"
             >
-              Acessar grátis
+              Ver ranking gratuito
+              <ArrowRight className="h-4 w-4" />
             </Link>
             <a
-              href="#features"
-              className="inline-flex h-12 items-center gap-2 rounded-lg border border-border bg-transparent px-5 text-base font-medium text-foreground transition-colors hover:bg-card"
+              href="#apps"
+              className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/15
+                         px-5 text-base font-medium text-white/80 backdrop-blur-sm
+                         transition-colors hover:border-white/30 hover:text-white"
             >
-              <Play className="h-4 w-4" />
-              Ver como funciona
+              Explorar apps
             </a>
           </motion.div>
 
+          {/* trust */}
           <motion.div
             variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}
-            className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground"
+            className="mt-8 flex flex-wrap items-center gap-5 text-xs text-white/40"
           >
-            <span className="inline-flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5 text-[var(--success)]" />
-              Sem cartão de crédito
-            </span>
-            <span className="text-border">·</span>
-            <span className="inline-flex items-center gap-1.5">
-              <Users className="h-3.5 w-3.5 text-[var(--text-secondary)]" />
-              2.400 founders
-            </span>
-            <span className="text-border">·</span>
-            <span className="inline-flex items-center gap-1.5">
-              <Shield className="h-3.5 w-3.5 text-[var(--text-secondary)]" />
-              Garantia 7 dias
-            </span>
+            <span>✓ Sem cartão de crédito</span>
+            <span>·</span>
+            <span>✓ {SCRAPED_APPS.length}+ apps monitorados</span>
+            <span>·</span>
+            <span>✓ Atualizado toda semana</span>
           </motion.div>
         </motion.div>
 
-        {/* ── Right: App Store Intelligence mockup ───────────────── */}
+        {/* ── RIGHT: live dashboard card ──────────────────────────── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
+          transition={{ duration: 0.7, delay: 0.25 }}
           className="relative"
         >
           <motion.div
             animate={{ y: [0, -8, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            className="relative rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]"
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md
+                       shadow-[var(--shadow-navy)]"
           >
-            {/* Header */}
+            {/* card header */}
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                <AlertCircle className="h-4 w-4 text-[#635BFF]" />
+                <span className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                  Maiores oportunidades · Ao vivo
                 </span>
-                <span className="label-caps text-[var(--text-secondary)]">App Store · Oportunidades ao vivo</span>
               </div>
+              <span className="rounded-full bg-[#635BFF]/20 px-2 py-0.5 text-[10px]
+                               font-bold text-[#A78BFA]">
+                TOP PAIN
+              </span>
             </div>
 
-            {/* Column labels */}
-            <div className="mb-2 grid grid-cols-[1fr_auto_auto_auto] gap-2 px-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-              <span>App</span>
-              <span className="text-right">Downloads</span>
-              <span className="text-right">Rating</span>
-              <span className="text-right">Score dor</span>
-            </div>
-
-            {/* App rows */}
-            <div className="space-y-2">
-              {APPS.map((app, i) => (
+            {/* app rows */}
+            <div className="space-y-2.5">
+              {TOP.map((app, i) => (
                 <div
-                  key={app.name}
-                  className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-2 rounded-xl border border-border bg-[var(--bg-secondary)] px-3 py-2.5"
+                  key={app.id}
+                  className="flex items-center gap-3 rounded-xl border border-white/8
+                             bg-white/5 p-3 backdrop-blur-sm"
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <AppIcon name={app.name} color={app.color} size="sm" />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-foreground">{app.name}</p>
-                      <p className="text-[11px] text-muted-foreground">{app.category}</p>
+                  <span className="w-5 text-center text-xs font-bold text-white/30">
+                    #{i + 1}
+                  </span>
+                  <img
+                    src={app.icon}
+                    alt={app.name}
+                    className="h-9 w-9 flex-shrink-0 rounded-xl object-cover"
+                    onError={(e) => {
+                      const el = e.currentTarget;
+                      el.style.display = "none";
+                      const next = el.nextElementSibling as HTMLElement | null;
+                      if (next) next.style.display = "flex";
+                    }}
+                  />
+                  <div
+                    className="hidden h-9 w-9 flex-shrink-0 items-center justify-center
+                               rounded-xl bg-[#635BFF]/30 text-sm font-bold text-white"
+                  >
+                    {app.name[0]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">{app.name}</p>
+                    <div className="flex items-center gap-2 text-[11px] text-white/40">
+                      <span className="inline-flex items-center gap-0.5">
+                        <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
+                        {app.rating}
+                      </span>
+                      <span>·</span>
+                      <span>{app.downloads} downloads</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Download className="h-3 w-3" />
-                    {app.downloads}
-                  </div>
-                  <Stars rating={app.rating} />
-                  <div className="text-right">
-                    <span className="rounded-md bg-primary-muted px-2 py-0.5 text-sm font-bold text-primary">
-                      {app.pain}
+                  <div className="flex flex-col items-end gap-0.5">
+                    <span className="text-lg font-extrabold tabular-nums text-[#635BFF]">
+                      {fmt(app.reviews)}
                     </span>
+                    <span className="text-[9px] uppercase tracking-wider text-white/30">reviews</span>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Footer */}
-            <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-              <span className="text-xs text-muted-foreground">Atualizado há 2h · 48.320 reviews analisadas</span>
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-[var(--success)]">
+            {/* card footer */}
+            <div className="mt-4 flex items-center justify-between border-t border-white/8 pt-3">
+              <span className="text-[11px] text-white/35">
+                {SCRAPED_APPS.length} apps · 12 nichos
+              </span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400">
                 <TrendingUp className="h-3 w-3" />
-                +12% esta semana
+                Ranking atualizado hoje
               </span>
             </div>
           </motion.div>
 
-          {/* Floating badge */}
+          {/* floating pill */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.9 }}
-            className="absolute -right-4 -top-4 rounded-xl border border-border bg-card px-3 py-2 shadow-[var(--shadow-card)]"
+            className="absolute -bottom-4 -left-4 rounded-xl border border-white/10
+                       bg-[#0d2d4a] px-4 py-2.5 shadow-[var(--shadow-navy)]"
           >
-            <div className="flex items-center gap-2">
-              <span className="text-lg">📱</span>
-              <div>
-                <p className="text-[11px] font-semibold text-foreground">Google Play + App Store</p>
-                <p className="text-[10px] text-muted-foreground">2 lojas monitoradas</p>
-              </div>
-            </div>
+            <p className="text-xs font-semibold text-white">
+              📱 Google Play + App Store
+            </p>
+            <p className="text-[10px] text-white/45">2 lojas · dados em tempo real</p>
           </motion.div>
-
-          <div className="pointer-events-none absolute -inset-10 -z-10 bg-primary/10 blur-3xl" />
         </motion.div>
       </div>
     </section>

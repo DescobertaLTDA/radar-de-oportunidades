@@ -93,7 +93,7 @@ for (const cat of CATEGORIES) {
     const results = await gplay.list({
       category: cat.id,
       collection: gplay.collection.TOP_FREE,
-      num: 5,
+      num: 15,
       lang: 'pt-BR',
       country: 'br',
       fullDetail: true,

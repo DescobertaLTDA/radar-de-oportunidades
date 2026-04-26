@@ -89,14 +89,24 @@ function AppCard({ app, i }: { app: AppEntry; i: number }) {
   );
 }
 
+const PAGE_SIZE = 12;
+
 export function AppGrid() {
   const [cat, setCat] = useState("Todos");
+  const [showAll, setShowAll] = useState(false);
 
   const filtered = cat === "Todos"
     ? SCRAPED_APPS
     : SCRAPED_APPS.filter(a => a.category === cat);
 
   const sorted = [...filtered].sort((a, b) => b.reviews - a.reviews);
+  const visible = showAll ? sorted : sorted.slice(0, PAGE_SIZE);
+  const hasMore = sorted.length > PAGE_SIZE && !showAll;
+
+  function handleCatChange(c: string) {
+    setCat(c);
+    setShowAll(false);
+  }
 
   return (
     <section id="apps" className="section-divider py-24">
@@ -117,7 +127,7 @@ export function AppGrid() {
           {ALL_CATS.map(c => (
             <button
               key={c}
-              onClick={() => setCat(c)}
+              onClick={() => handleCatChange(c)}
               className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
                 cat === c
                   ? "bg-[#00FF88] text-[#0B0F0C] shadow-[var(--shadow-neon-btn)]"
@@ -130,8 +140,19 @@ export function AppGrid() {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {sorted.map((app, i) => <AppCard key={app.id} app={app} i={i} />)}
+          {visible.map((app, i) => <AppCard key={app.id} app={app} i={i} />)}
         </div>
+
+        {hasMore && (
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={() => setShowAll(true)}
+              className="btn-ghost rounded-lg px-6 py-2.5 text-sm font-medium"
+            >
+              Ver todos os {sorted.length} apps
+            </button>
+          </div>
+        )}
 
         <div className="mt-10 flex flex-wrap justify-center gap-6 text-xs text-[#3A5A4A]">
           <span className="flex items-center gap-1.5">

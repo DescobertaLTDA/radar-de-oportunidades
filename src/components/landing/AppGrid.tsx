@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Star, Users, ArrowRight, Lightbulb, ShieldAlert } from "lucide-react";
+import { Star, Users, Zap, TrendingDown, AlertTriangle, Rocket, ArrowRight, BarChart2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { SCRAPED_APPS, type AppEntry } from "@/data/apps";
@@ -12,95 +12,137 @@ function fmt(n: number) {
   return String(n);
 }
 
-/* ── Saturation derived from pain score (inverse) ── */
-function saturation(pain: number): { label: string; color: string; bg: string } {
-  if (pain >= 50) return { label: "Saturação: Baixa",  color: "#00FF88", bg: "rgba(0,255,136,0.08)"  };
-  if (pain >= 38) return { label: "Saturação: Média",  color: "#FFAA00", bg: "rgba(255,170,0,0.08)"  };
-  return              { label: "Saturação: Alta",   color: "#FF6666", bg: "rgba(255,68,68,0.08)"   };
+/* ── Saturation ── */
+type SatLevel = "alta" | "media" | "baixa";
+
+function getSat(pain: number): SatLevel {
+  if (pain >= 50) return "baixa";
+  if (pain >= 38) return "media";
+  return "alta";
 }
 
-/* ── Estimated strong competitors from download tier ── */
-function competitors(downloads: string): string {
-  if (downloads.includes("10B") || downloads.includes("5B")) return "5+ apps dominantes";
-  if (downloads.includes("1B"))  return "3–5 apps dominantes";
-  if (downloads.includes("500M")) return "2–3 apps dominantes";
-  if (downloads.includes("100M")) return "1–2 apps dominantes";
-  return "< 1 app dominante";
-}
-
-/* ── Innovation level based on pain + rating ── */
-function innovation(pain: number, rating: number): { label: string; color: string } {
-  const score = pain + (5 - rating) * 5;
-  if (score >= 45) return { label: "Alto potencial",  color: "#00FF88" };
-  if (score >= 30) return { label: "Médio potencial", color: "#FFAA00" };
-  return               { label: "Baixo potencial",  color: "#FF6666" };
-}
-
-/* ── One-line insight per category × saturation level ── */
-const INSIGHTS: Record<string, [string, string, string]> = {
-  "Finanças":      ["Nicho aberto para app de finanças sem banco vinculado", "Oportunidade em educação financeira prática", "Mercado maduro — diferencie com UX ou nicho específico"],
-  "Produtividade": ["Alta demanda por foco sem distrações em mobile", "Usuários pedem integração nativa entre apps", "Nicho consolidado — explore vertical específica"],
-  "Social":        ["Crescimento em comunidades de nicho e interesse", "Usuários buscam privacidade e menos algoritmo", "Saturado — forte diferenciação necessária"],
-  "Saúde":         ["Espaço para app sem paywall em monitoramento básico", "Demanda por integração com wearables simples", "Nicho competitivo — foque em segmento específico"],
-  "Educação":      ["Alta procura por aprendizado microconteúdo em PT", "Gamificação ainda pouco explorada fora do inglês", "Mercado estável — especialização é o caminho"],
-  "Compras":       ["Oportunidade em cashback localizado e regional", "Usuários pedem menos popups e mais clareza de preço", "Segmento dominado — explore nicho geográfico"],
-  "Alimentação":   ["Espaço para cardápios locais sem taxa exorbitante", "Demanda por dietas específicas não atendida", "Mercado consolidado — diferenciação por nicho alimentar"],
-  "Jogos":         ["Hipercasual sem ads invasivos tem alta retenção", "Jogos locais e temáticos BR crescendo", "Altamente competitivo — monetização criativa é chave"],
-  "Viagem":        ["Oportunidade em roteiros off-the-beaten-path BR", "Demanda por app de viagem sem plano premium forçado", "Segmento recuperando — foque em experiência local"],
-  "Transporte":    ["Espaço para mobilidade compartilhada em cidades médias", "Usuários reclamam de preços imprevisíveis", "Mercado regulado — oportunidade em nicho específico"],
-  "Música":        ["Oportunidade em criação musical sem assinatura", "Alta demanda por descoberta local de artistas BR", "Dominado por big tech — foque em criadores independentes"],
-  "Fotografia":    ["Edição offline sem nuvem tem alta demanda", "Usuários pedem templates sem marca d'água grátis", "Nicho maduro — ferramentas pro sem assinatura se destacam"],
+const SAT_MAP = {
+  alta:  { label: "Saturação: Alta",  text: "#FF6666", border: "rgba(255,68,68,0.30)",  bg: "rgba(255,68,68,0.08)"  },
+  media: { label: "Saturação: Média", text: "#FFAA00", border: "rgba(255,170,0,0.30)",  bg: "rgba(255,170,0,0.08)"  },
+  baixa: { label: "Saturação: Baixa", text: "#00FF88", border: "rgba(0,255,136,0.30)",  bg: "rgba(0,255,136,0.08)"  },
 };
 
-function getInsight(app: AppEntry): string {
+/* ── Score color ── */
+function scoreStyle(pain: number): { color: string; glow: string } {
+  if (pain >= 50) return { color: "#00FF88", glow: "0 0 24px rgba(0,255,136,0.35)" };
+  if (pain >= 38) return { color: "#FFAA00", glow: "0 0 24px rgba(255,170,0,0.25)"  };
+  return               { color: "#FF6666", glow: "0 0 24px rgba(255,68,68,0.20)"   };
+}
+
+/* ── Quick insight ── */
+type Insight = { icon: React.ElementType; text: string; color: string; bg: string };
+
+function getInsight(pain: number, category: string): Insight {
+  if (pain >= 50) return {
+    icon: Rocket,
+    text: "Alta oportunidade de entrada",
+    color: "#00FF88",
+    bg: "rgba(0,255,136,0.08)",
+  };
+  if (pain >= 38) return {
+    icon: Zap,
+    text: "Saturado, mas com brechas",
+    color: "#FFAA00",
+    bg: "rgba(255,170,0,0.08)",
+  };
+  return {
+    icon: AlertTriangle,
+    text: "Mercado dominado — diferenciação necessária",
+    color: "#FF6666",
+    bg: "rgba(255,68,68,0.08)",
+  };
+}
+
+/* ── Competition label ── */
+function competitionLabel(downloads: string): string {
+  if (downloads.includes("10B") || downloads.includes("5B")) return "Muito alta (10+ players)";
+  if (downloads.includes("1B"))  return "Alta (5–10 players)";
+  if (downloads.includes("500M")) return "Média (3–5 players)";
+  if (downloads.includes("100M")) return "Baixa (1–3 players)";
+  return "Muito baixa (< 1 player)";
+}
+
+/* ── Innovation level ── */
+function innovationLabel(pain: number, rating: number): { label: string; color: string } {
+  const score = pain + (5 - rating) * 5;
+  if (score >= 45) return { label: "Alta",  color: "#00FF88" };
+  if (score >= 30) return { label: "Média", color: "#FFAA00" };
+  return               { label: "Baixa", color: "#FF6666" };
+}
+
+/* ── Opportunity text per category ── */
+const OP: Record<string, [string, string, string]> = {
+  "Finanças":        ["App de finanças sem banco vinculado", "Educação financeira para jovens", "Nicho específico com UX superior"],
+  "Produtividade":   ["Foco sem distrações para mobile", "Integração nativa entre apps", "Vertical específica não atendida"],
+  "Social":          ["Comunidades de nicho e interesse", "Privacidade e menos algoritmo", "Diferenciação radical de formato"],
+  "Saúde & Fitness": ["Monitoramento básico sem paywall", "Integração com wearables simples", "Segmento específico de saúde"],
+  "Educação":        ["Microaprendizado em português", "Gamificação fora do inglês", "Especialização por área"],
+  "Compras":         ["Cashback localizado e regional", "Menos popups, mais clareza", "Nicho geográfico específico"],
+  "Alimentação":     ["Cardápios locais sem taxa alta", "Dietas específicas não atendidas", "Experiência por nicho alimentar"],
+  "Entretenimento":  ["Conteúdo local sem assinatura", "Criadores independentes BR", "Formato não explorado"],
+  "Viagem":          ["Roteiros off-the-beaten-path BR", "Sem plano premium forçado", "Experiência local e autêntica"],
+  "Negócios":        ["Gestão simples para MEI", "Integração sem burocracia", "Vertical específica de negócio"],
+  "Medicina":        ["Saúde sem jargão médico", "Acesso a informação local", "Nicho de especialidade"],
+  "Esportes":        ["Esporte local não coberto", "Gamificação de atividade física", "Comunidade de nicho esportivo"],
+};
+
+function getOpportunity(app: AppEntry): string {
   const bucket = app.pain >= 50 ? 0 : app.pain >= 38 ? 1 : 2;
-  const row = INSIGHTS[app.category] ?? ["Oportunidade detectada neste nicho", "Análise detalhada disponível", "Mercado estabelecido — diferenciação necessária"];
+  const row = OP[app.category] ?? ["Oportunidade detectada", "Análise disponível", "Diferenciação necessária"];
   return row[bucket];
 }
 
-/* ── Score color ── */
-function scoreColor(pain: number) {
-  if (pain >= 50) return "text-[#00FF88]";
-  if (pain >= 38) return "text-[#FFAA00]";
-  return "text-[#FF6666]";
-}
-
-/* ─────────────────────────────────────────── AppCard ── */
+/* ═══════════════════════════════════════ AppCard ══ */
 function AppCard({ app, i }: { app: AppEntry; i: number }) {
-  const [err, setErr] = useState(false);
-  const sat  = saturation(app.pain);
-  const inno = innovation(app.pain, app.rating);
-  const insight = getInsight(app);
+  const [imgErr, setImgErr] = useState(false);
+
+  const sat     = SAT_MAP[getSat(app.pain)];
+  const score   = scoreStyle(app.pain);
+  const insight = getInsight(app.pain, app.category);
+  const inno    = innovationLabel(app.pain, app.rating);
+  const opp     = getOpportunity(app);
+  const InsightIcon = insight.icon;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.3, delay: (i % 12) * 0.03 }}
-      className="card-hover group flex flex-col rounded-2xl border border-[#1F2A27]
-                 bg-[#111615] p-4 shadow-[var(--shadow-card)]"
+      transition={{ duration: 0.3, delay: (i % 12) * 0.04 }}
+      className="group flex flex-col rounded-2xl border border-[#1F2A27] bg-[#111615]
+                 shadow-[var(--shadow-card)] transition-all duration-200
+                 hover:border-[#00FF88]/25 hover:shadow-[var(--shadow-glow)]"
     >
-      {/* ── Header ── */}
-      <div className="flex items-start gap-3">
-        {!err ? (
+
+      {/* ══ 1. HEADER ══════════════════════════════════════════════ */}
+      <div className="flex items-center gap-3 p-4 pb-3">
+        {/* Icon */}
+        {!imgErr ? (
           <img
             src={app.icon}
             alt={app.name}
-            className="h-11 w-11 flex-shrink-0 rounded-2xl object-cover"
-            onError={() => setErr(true)}
+            className="h-14 w-14 flex-shrink-0 rounded-2xl object-cover"
+            onError={() => setImgErr(true)}
           />
         ) : (
-          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center
-                          rounded-2xl bg-[#1F2A27] text-lg font-bold text-[#00FF88]">
+          <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center
+                          rounded-2xl bg-[#1F2A27] text-2xl font-black text-[#00FF88]">
             {app.name[0]}
           </div>
         )}
 
+        {/* Name + category */}
         <div className="flex-1 min-w-0">
-          <p className="truncate text-sm font-bold text-[#E6F1EC]">{app.name}</p>
-          <p className="text-[11px] text-[#5A7A6A]">{app.category}</p>
-          <div className="mt-1.5 flex items-center gap-2.5 text-[11px] text-[#3A5A4A]">
+          <p className="truncate text-[15px] font-bold leading-tight text-[#E6F1EC]">
+            {app.name}
+          </p>
+          <p className="mt-0.5 text-[11px] text-[#5A7A6A]">{app.category}</p>
+          <div className="mt-1.5 flex items-center gap-2 text-[11px] text-[#3A5A4A]">
             <span className="flex items-center gap-0.5">
               <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
               <span className="text-[#7A9E8E]">{app.rating}</span>
@@ -115,68 +157,110 @@ function AppCard({ app, i }: { app: AppEntry; i: number }) {
 
         {/* Saturation badge */}
         <span
-          className="flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold"
-          style={{ color: sat.color, background: sat.bg }}
+          className="flex-shrink-0 self-start rounded-full border px-2.5 py-1
+                     text-[10px] font-bold leading-none"
+          style={{ color: sat.text, borderColor: sat.border, background: sat.bg }}
         >
           {sat.label}
         </span>
       </div>
 
-      {/* ── Analysis block ── */}
-      <div className="mt-3 rounded-xl border border-[#1F2A27] bg-[#0D1210] p-3 space-y-1.5">
+      {/* ══ 2. SCORE BLOCK ══════════════════════════════════════════ */}
+      <div className="mx-4 flex items-center justify-between rounded-xl
+                      border border-[#1F2A27] bg-[#0D1210] px-4 py-3">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-[#3A5A4A]">
+            Opportunity Score
+          </p>
+          <div className="mt-0.5 flex items-baseline gap-1">
+            <span
+              className="text-[42px] font-black leading-none tabular-nums"
+              style={{ color: score.color, textShadow: score.glow }}
+            >
+              {app.pain}
+            </span>
+            <span className="text-base font-bold text-[#3A5A4A]">/100</span>
+          </div>
+        </div>
+
+        {/* Mini bar */}
+        <div className="flex flex-col items-end gap-1.5">
+          <div className="h-1.5 w-24 overflow-hidden rounded-full bg-[#1F2A27]">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{ width: `${app.pain}%`, background: score.color }}
+            />
+          </div>
+          <p className="text-[10px] text-[#3A5A4A]">
+            {app.pain >= 50 ? "Excelente" : app.pain >= 38 ? "Moderado" : "Baixo"}
+          </p>
+        </div>
+      </div>
+
+      {/* ══ 3. QUICK INSIGHT ════════════════════════════════════════ */}
+      <div
+        className="mx-4 mt-2 flex items-center gap-2 rounded-xl px-3 py-2.5"
+        style={{ background: insight.bg }}
+      >
+        <InsightIcon className="h-3.5 w-3.5 flex-shrink-0" style={{ color: insight.color }} />
+        <p className="text-[12px] font-semibold" style={{ color: insight.color }}>
+          {insight.text}
+        </p>
+      </div>
+
+      {/* ══ 4. DATA LIST ════════════════════════════════════════════ */}
+      <div className="mx-4 mt-3 space-y-1.5">
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-[#5A7A6A]">Concorrentes fortes</span>
-          <span className="font-medium text-[#B0C8BC]">{competitors(app.downloads)}</span>
+          <span className="flex items-center gap-1.5 text-[#5A7A6A]">
+            <BarChart2 className="h-3 w-3" />
+            Concorrência
+          </span>
+          <span className="font-medium text-[#B0C8BC]">{competitionLabel(app.downloads)}</span>
         </div>
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-[#5A7A6A]">Média de avaliação</span>
+          <span className="flex items-center gap-1.5 text-[#5A7A6A]">
+            <Star className="h-3 w-3" />
+            Nota média
+          </span>
           <span className="font-medium text-[#B0C8BC]">{app.rating} ★</span>
         </div>
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-[#5A7A6A]">Nível de inovação</span>
+          <span className="flex items-center gap-1.5 text-[#5A7A6A]">
+            <Sparkles className="h-3 w-3" />
+            Inovação
+          </span>
           <span className="font-medium" style={{ color: inno.color }}>{inno.label}</span>
         </div>
       </div>
 
-      {/* ── Opportunity insight ── */}
-      <div className="mt-3 flex items-start gap-2 rounded-xl border border-[#00FF88]/15
-                      bg-[#00FF88]/5 p-3">
-        <Lightbulb className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#00FF88]" />
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-[#00FF88]">
-            Oportunidade detectada
-          </p>
-          <p className="mt-0.5 text-[11px] leading-snug text-[#7A9E8E]">{insight}</p>
-        </div>
+      {/* ══ 5. OPPORTUNITY ══════════════════════════════════════════ */}
+      <div className="mx-4 mt-3 rounded-xl border border-[#00FF88]/15
+                      bg-[#00FF88]/5 px-3 py-2.5">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#00FF88]">
+          💡 Oportunidade
+        </p>
+        <p className="mt-0.5 truncate text-[12px] font-medium text-[#7A9E8E]">{opp}</p>
       </div>
 
-      {/* ── Footer ── */}
-      <div className="mt-3 flex items-center justify-between border-t border-[#1F2A27] pt-3">
-        <div className="flex items-center gap-1.5">
-          <ShieldAlert className={`h-3.5 w-3.5 ${scoreColor(app.pain)}`} />
-          <div>
-            <p className="text-[9px] uppercase tracking-widest text-[#3A5A4A]">Opportunity Score</p>
-            <p className={`text-sm font-extrabold leading-none tabular-nums ${scoreColor(app.pain)}`}>
-              {app.pain}<span className="text-[10px] font-normal text-[#3A5A4A]">/100</span>
-            </p>
-          </div>
-        </div>
-
+      {/* ══ 6. CTA ══════════════════════════════════════════════════ */}
+      <div className="p-4 pt-3">
         <Link
           to="/register"
-          className="inline-flex items-center gap-1 rounded-lg border border-[#1F2A27]
-                     bg-[#111615] px-3 py-1.5 text-[11px] font-medium text-[#5A9E7A]
-                     transition-all hover:border-[#00FF88]/40 hover:text-[#00FF88]"
+          className="flex w-full items-center justify-center gap-1.5 rounded-xl
+                     border border-[#1F2A27] py-2.5 text-[12px] font-semibold
+                     text-[#5A7A6A] transition-all duration-150
+                     hover:border-[#00FF88]/40 hover:text-[#00FF88]
+                     hover:shadow-[0_0_16px_-4px_rgba(0,255,136,0.30)]"
         >
           Ver análise completa
-          <ArrowRight className="h-3 w-3" />
+          <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>
     </motion.div>
   );
 }
 
-/* ─────────────────────────────────────────── AppGrid ── */
+/* ═══════════════════════════════════════ AppGrid ══ */
 const PAGE_SIZE = 12;
 
 export function AppGrid() {
@@ -199,6 +283,7 @@ export function AppGrid() {
   return (
     <section id="apps" className="section-divider py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
+
         <div className="mx-auto mb-10 max-w-2xl text-center">
           <span className="label-caps text-[#00FF88]">Dados reais · Play Store</span>
           <h2 className="mt-3 text-3xl font-bold text-[#E6F1EC] sm:text-4xl">
@@ -210,7 +295,7 @@ export function AppGrid() {
           </p>
         </div>
 
-        {/* filter */}
+        {/* Category filter */}
         <div className="mb-8 flex flex-wrap justify-center gap-2">
           {ALL_CATS.map(c => (
             <button

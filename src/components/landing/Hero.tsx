@@ -128,12 +128,13 @@ function Terminal() {
 /* ── Hero ──────────────────────────────────────────────────────── */
 export function Hero() {
   return (
-    <section className="relative overflow-hidden border-b border-[#1F2A27]">
+    <section className="relative overflow-hidden border-b border-[#1F2A27]
+                        min-h-[calc(100vh-6.5rem)]">
       <div className="pointer-events-none absolute inset-0 grid-bg" />
       <div className="pointer-events-none absolute inset-0 radial-glow" />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-14
-                      px-5 py-24 lg:grid-cols-[1.1fr_1fr] lg:px-8 lg:py-32">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-10
+                      px-5 py-14 lg:grid-cols-[1.1fr_1fr] lg:px-8 lg:py-16">
 
         {/* ── LEFT ─────────────────────────────────────────────── */}
         <motion.div

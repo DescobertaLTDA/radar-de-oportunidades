@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, CheckCircle2, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -127,6 +127,8 @@ function Terminal() {
 
 /* ── Hero ──────────────────────────────────────────────────────── */
 export function Hero() {
+  const navigate = useNavigate();
+  const handleCTA = () => navigate({ to: "/register" });
   return (
     <section className="relative overflow-hidden border-b border-[#1F2A27]
                         min-h-[calc(100vh-6.5rem)]">
@@ -197,13 +199,13 @@ export function Hero() {
             variants={{ h:{ opacity:0, y:14 }, s:{ opacity:1, y:0 } }}
             className="mt-9 flex flex-wrap items-center gap-3"
           >
-            <Link
-              to="/register"
+            <button
+              onClick={handleCTA}
               className="btn-neon inline-flex h-12 items-center gap-2 rounded-lg px-6 text-base"
             >
               Analisar minha ideia agora
               <ArrowRight className="h-4 w-4" />
-            </Link>
+            </button>
             <a
               href="#buscar"
               className="btn-ghost inline-flex h-12 items-center gap-2 rounded-lg px-5 text-base"

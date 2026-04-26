@@ -1,3 +1,6 @@
+# Claude local settings (may contain command history with tokens)
+.claude/
+
 # Logs
 logs
 *.log

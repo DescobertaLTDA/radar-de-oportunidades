@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Search, ArrowRight } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 
 const SUGGESTIONS = [
   "app de treino",
@@ -15,6 +16,13 @@ const SUGGESTIONS = [
 
 export function SearchBar() {
   const [value, setValue] = useState("");
+  const navigate = useNavigate();
+
+  const handleAnalyze = () => {
+    const idea = value.trim();
+    if (idea) localStorage.setItem("painradar_pending_idea", idea);
+    navigate({ to: "/register" });
+  };
 
   return (
     <section id="buscar" className="section-divider bg-[#0E1311] py-20">
@@ -33,7 +41,6 @@ export function SearchBar() {
             Em segundos você descobre se vale a pena construir.
           </p>
 
-          {/* input */}
           <div className="mt-8 flex items-center gap-3 rounded-xl border border-[#1F2A27]
                           bg-[#111615] p-2 shadow-[var(--shadow-card)]
                           focus-within:border-[#00FF88]/40 focus-within:shadow-[var(--shadow-glow)]
@@ -43,11 +50,13 @@ export function SearchBar() {
               type="text"
               value={value}
               onChange={e => setValue(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleAnalyze()}
               placeholder="Digite sua ideia de app..."
               className="flex-1 bg-transparent text-base text-[#E6F1EC] placeholder:text-[#3A5A4A]
                          outline-none"
             />
             <button
+              onClick={handleAnalyze}
               className="btn-neon inline-flex h-10 items-center gap-2 rounded-lg px-5 text-sm"
             >
               Analisar ideia
@@ -55,7 +64,6 @@ export function SearchBar() {
             </button>
           </div>
 
-          {/* suggestions */}
           <div className="mt-5 flex flex-wrap justify-center gap-2">
             {SUGGESTIONS.map(s => (
               <button

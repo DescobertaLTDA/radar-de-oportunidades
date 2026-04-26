@@ -26,6 +26,7 @@ export interface RedditPost {
   upvotes: number;
   text: string;
   gap: string;
+  translated?: boolean;
 }
 
 export interface MVPFeature {
@@ -77,9 +78,9 @@ const NICHO_DATA: Record<string, Omit<AnalysisResult, "niche">> = {
       { text: "Paywall agressivo logo no segundo dia de uso sem demonstrar valor primeiro", frequency: 15, sources: ["App Store"] },
     ],
     redditPosts: [
-      { subreddit: "r/fitness", upvotes: 2400, text: "Why are there no fitness apps that remember your injury history and adjust workouts automatically? I've tried 6 apps and they all ignore this completely.", gap: "Personalização por limitação física" },
-      { subreddit: "r/loseit", upvotes: 1800, text: "I wish fitness apps had a real beginner mode — not just 'easy' workouts but actual hand-holding for people who've never worked out before", gap: "Onboarding para iniciantes reais" },
-      { subreddit: "r/bodyweightfitness", upvotes: 956, text: "Every fitness app assumes you have a gym. Where's the app for people who only have 20min and a floor?", gap: "Treinos sem equipamento com restrição de tempo" },
+      { subreddit: "r/fitness", upvotes: 2400, text: "Por que nenhum app de fitness lembra do meu histórico de lesões e ajusta os treinos automaticamente? Já testei 6 apps e todos ignoram isso completamente.", gap: "Personalização por limitação física", translated: true },
+      { subreddit: "r/loseit", upvotes: 1800, text: "Queria que os apps de fitness tivessem um modo iniciante de verdade — não só treinos 'fáceis', mas um acompanhamento real para quem nunca treinou na vida.", gap: "Onboarding para iniciantes reais", translated: true },
+      { subreddit: "r/bodyweightfitness", upvotes: 956, text: "Todo app de treino assume que você tem academia. Cadê o app para quem só tem 20 minutos e um chão?", gap: "Treinos sem equipamento com restrição de tempo", translated: true },
     ],
     iosComplaints: ["Paywall agressivo na App Store (3× mais reclamações que Android)", "App consome bateria excessiva no iOS 17+", "Integração com Apple Health instável"],
     androidComplaints: ["App trava em dispositivos mid-range", "Notificações param de funcionar após atualização do Android", "Sync com Google Fit quebrado desde v3.2"],
@@ -199,9 +200,9 @@ function generateGeneric(idea: string): Omit<AnalysisResult, "niche"> {
       { text: "Paywall agressivo antes de o usuário entender o valor do produto", frequency: 13, sources: ["App Store"] },
     ],
     redditPosts: [
-      { subreddit: `r/${idea.replace(/\s+/g, "")}`, upvotes: 1200, text: `Why is there no ${idea} app that actually works for beginners without requiring a manual to understand?`, gap: "Onboarding simplificado para iniciantes" },
-      { subreddit: "r/apps", upvotes: 890, text: `I've tried every ${idea} app and none of them work offline. My commute has zero signal and I need this to work without internet.`, gap: "Modo offline completo" },
-      { subreddit: "r/startups", upvotes: 540, text: `The ${idea} market is dominated by bloated apps. Someone needs to build a simple, focused alternative.`, gap: "App focado sem feature bloat" },
+      { subreddit: `r/${idea.replace(/\s+/g, "")}`, upvotes: 1200, text: `Por que não existe um app de ${idea} que funcione para iniciantes sem precisar de manual para entender?`, gap: "Onboarding simplificado para iniciantes", translated: true },
+      { subreddit: "r/apps", upvotes: 890, text: `Já testei todos os apps de ${idea} e nenhum funciona offline. Meu trajeto não tem sinal e preciso disso sem internet.`, gap: "Modo offline completo", translated: true },
+      { subreddit: "r/startups", upvotes: 540, text: `O mercado de ${idea} é dominado por apps pesados e cheios de features desnecessárias. Alguém precisa construir uma alternativa simples e focada.`, gap: "App focado sem feature bloat", translated: true },
     ],
     iosComplaints: ["Crashes frequentes após atualização do iOS", "Integração com Apple Health instável", "Widget não atualiza em background"],
     androidComplaints: ["Performance ruim em dispositivos entry-level", "Notificações param após reinicialização", "App consome dados em excesso em segundo plano"],

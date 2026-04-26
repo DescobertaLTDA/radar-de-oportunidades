@@ -5,7 +5,7 @@ import {
   LayoutGrid, Search, FileText, Settings, LogOut, Plus, Download,
   Star, AlertTriangle, Lightbulb, ChevronDown, ChevronUp,
   Lock, Smartphone, MessageCircle, ArrowRight, Sparkles,
-  CheckCircle2, Zap, ChevronRight, BarChart3,
+  CheckCircle2, Zap, ChevronRight, BarChart3, UserCheck, WifiOff,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -73,7 +73,7 @@ function ScoreGauge({ score, animate }: { score: number; animate: boolean }) {
         </div>
       </div>
       <p className="mt-1 text-sm font-bold" style={{ color }}>{label}</p>
-      <p className="text-[10px] text-[#5A7A6A]">Opportunity Score</p>
+      <p className="text-[10px] text-[#5A7A6A]">Pontuação de Oportunidade</p>
     </div>
   );
 }
@@ -132,6 +132,42 @@ function CanvasBlock({ step, state, isLast }: { step: typeof STEPS[0]; state: St
   );
 }
 
+/* ═════════════════════════════════════ Helpers ══ */
+const ICON_PALETTE = ["#00FF88","#00AAFF","#FFAA00","#FF6633","#AA88FF","#FF6688","#00DDCC","#88FF00"];
+function iconColor(name: string) {
+  const h = name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  return ICON_PALETTE[h % ICON_PALETTE.length];
+}
+
+function ratingDist(rating: number): number[] {
+  const five = Math.round(10 + (rating - 1) / 4 * 70);
+  const four  = Math.round((100 - five) * 0.42);
+  const three = Math.round((100 - five - four) * 0.40);
+  const two   = Math.round((100 - five - four - three) * 0.40);
+  const one   = Math.max(1, 100 - five - four - three - two);
+  return [five, four, three, two, one];
+}
+
+function fmtUpvotes(n: number): string {
+  if (n >= 1000) return (n / 1000).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " mil";
+  return n.toLocaleString("pt-BR");
+}
+
+const TECH_COLORS: Record<string, string> = {
+  "React Native": "#61DAFB",
+  "React": "#61DAFB",
+  "Supabase": "#3ECF8E",
+  "Expo": "#4630EB",
+  "Node": "#68A063",
+  "Next.js": "#E6F1EC",
+  "Flutter": "#54C5F8",
+};
+function parseStack(stack: string): string[] {
+  return stack.split("—")[0].split("+").map(s => s.trim()).filter(Boolean);
+}
+
+const MVP_ICONS = [Zap, UserCheck, WifiOff];
+
 /* ═════════════════════════════════════ Competitor card ══ */
 function CompetitorCard({ c, i }: { c: Competitor; i: number }) {
   const [open, setOpen] = useState(false);
@@ -141,6 +177,10 @@ function CompetitorCard({ c, i }: { c: Competitor; i: number }) {
     neutral: { color: "#7A9E8E", bg: "rgba(122,158,142,0.08)", border: "rgba(122,158,142,0.25)" },
   }[c.gapColor];
 
+  const ic = iconColor(c.name);
+  const dist = ratingDist(c.playRating);
+  const starBg = ["#00FF88","#7AE88E","#FFAA00","#FF6633","#FF4444"];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -148,23 +188,42 @@ function CompetitorCard({ c, i }: { c: Competitor; i: number }) {
       transition={{ delay: i * 0.1 }}
       className="rounded-xl border border-[#1F2A27] bg-[#0D1210] overflow-hidden"
     >
-      <button onClick={() => setOpen(v => !v)} className="flex w-full items-center gap-3 p-4 text-left hover:bg-[#111615] transition-colors">
-        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#1F2A27] text-base font-black text-[#E6F1EC]">
+      <button onClick={() => setOpen(v => !v)} className="flex w-full items-start gap-4 p-4 text-left hover:bg-[#111615] transition-colors">
+        {/* App icon */}
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl text-lg font-black"
+          style={{ background: ic, color: "#0B0F0C" }}>
           {c.icon}
         </div>
+
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-[#E6F1EC]">{c.name}</p>
-          <div className="mt-0.5 flex flex-wrap gap-3 text-[11px] text-[#5A7A6A]">
-            <span>★ {c.playRating} Play · {(c.playReviews / 1000).toFixed(0)}K reviews</span>
-            <span>★ {c.appStoreRating} iOS · {(c.appStoreReviews / 1000).toFixed(0)}K reviews</span>
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="text-sm font-bold text-[#E6F1EC]">{c.name}</p>
+              <div className="mt-0.5 flex gap-4 text-[11px] text-[#5A7A6A]">
+                <span>★ {c.playRating} · {(c.playReviews/1000).toFixed(0)}K <span className="text-[#3A5A4A]">Play</span></span>
+                <span>★ {c.appStoreRating} · {(c.appStoreReviews/1000).toFixed(0)}K <span className="text-[#3A5A4A]">iOS</span></span>
+              </div>
+            </div>
+            <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+              <span className="rounded-full border px-2.5 py-0.5 text-[10px] font-bold"
+                style={{ color: gapStyle.color, background: gapStyle.bg, borderColor: gapStyle.border }}>
+                {c.gap}
+              </span>
+              {open ? <ChevronUp className="h-4 w-4 text-[#3A5A4A]" /> : <ChevronDown className="h-4 w-4 text-[#3A5A4A]" />}
+            </div>
           </div>
-        </div>
-        <div className="flex flex-shrink-0 flex-col items-end gap-1.5">
-          <span className="rounded-full border px-2.5 py-0.5 text-[10px] font-bold"
-            style={{ color: gapStyle.color, background: gapStyle.bg, borderColor: gapStyle.border }}>
-            {c.gap}
-          </span>
-          {open ? <ChevronUp className="h-4 w-4 text-[#3A5A4A]" /> : <ChevronDown className="h-4 w-4 text-[#3A5A4A]" />}
+
+          {/* Rating distribution mini chart */}
+          <div className="mt-2.5 space-y-0.5">
+            {dist.map((pct, j) => (
+              <div key={j} className="flex items-center gap-1.5">
+                <span className="w-4 text-right text-[9px] text-[#3A5A4A]">{5-j}★</span>
+                <div className="flex-1 h-1 overflow-hidden rounded-full bg-[#1F2A27]">
+                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: starBg[j] }} />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </button>
 
@@ -198,7 +257,7 @@ function CompetitorCard({ c, i }: { c: Competitor; i: number }) {
 /* ═════════════════════════════════════ Section header ══ */
 function SectionHeader({ icon: Icon, title, badge, color = "#00FF88" }: { icon: React.ElementType; title: string; badge?: string; color?: string }) {
   return (
-    <div className="mb-4 flex items-center gap-2.5">
+    <div className="mb-5 flex items-center gap-2.5">
       <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: `${color}15` }}>
         <Icon className="h-4 w-4" style={{ color }} />
       </div>
@@ -409,10 +468,10 @@ function DashboardPage() {
                 {/* Results */}
                 <AnimatePresence>
                   {result && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4 pb-24">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 pb-24">
 
                       {/* ── Seção 1: Concorrentes ─────────────── */}
-                      <div className="rounded-2xl border border-[#1F2A27] bg-[#111615] p-5">
+                      <div className="rounded-2xl border border-[#1F2A27] bg-[#111615] p-6">
                         <SectionHeader icon={Smartphone} title="Principais concorrentes analisados" badge="Play Store + App Store · 3 de 10 (grátis)" />
                         <div className="space-y-2">
                           {result.competitors.map((c, i) => <CompetitorCard key={i} c={c} i={i} />)}
@@ -425,46 +484,54 @@ function DashboardPage() {
                       </div>
 
                       {/* ── Seção 2: Reclamações ──────────────── */}
-                      <div className="rounded-2xl border border-[#1F2A27] bg-[#111615] p-5">
+                      <div className="rounded-2xl border border-[#1F2A27] bg-[#111615] p-6">
                         <SectionHeader icon={AlertTriangle} title="Reclamações mais comuns" badge="Play Store + App Store combinadas" color="#FFAA00" />
                         <div className="space-y-3">
-                          {result.topComplaints.map((c, i) => (
-                            <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
-                              className="rounded-xl border border-[#1F2A27] bg-[#0D1210] p-3.5">
-                              <div className="flex items-start gap-2.5">
-                                <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#FFAA00]/15 text-[10px] font-black text-[#FFAA00]">{i+1}</span>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm leading-snug text-[#B0C8BC]">{c.text}</p>
-                                  <div className="mt-2 flex items-center gap-3">
-                                    <div className="flex-1">
-                                      <FrequencyBar value={c.frequency} color={c.frequency >= 40 ? "#FF4444" : c.frequency >= 25 ? "#FFAA00" : "#00FF88"} />
+                          {result.topComplaints.map((c, i) => {
+                            const freqColor = c.frequency >= 35 ? "#FF4444" : c.frequency >= 20 ? "#FFAA00" : "#00FF88";
+                            return (
+                              <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
+                                className="relative rounded-xl border border-[#1F2A27] bg-[#0D1210] p-4 overflow-hidden">
+                                {/* Decorative number */}
+                                <span className="pointer-events-none absolute right-2 top-0 select-none text-[64px] font-black tabular-nums leading-none"
+                                  style={{ color: freqColor, opacity: 0.12 }}>{i+1}</span>
+                                <p className="relative text-sm leading-snug text-[#B0C8BC] pr-8">{c.text}</p>
+                                <div className="mt-3 space-y-1.5">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {c.sources.map(s => (
+                                        <span key={s} className="rounded-full border border-[#1F2A27] px-2 py-0.5 text-[9px] text-[#5A7A6A]">{s}</span>
+                                      ))}
                                     </div>
-                                    <span className="text-[10px] font-bold text-[#FFAA00] whitespace-nowrap">{c.frequency}% dos reviews</span>
+                                    <span className="text-[11px] font-bold whitespace-nowrap" style={{ color: freqColor }}>{c.frequency}% dos reviews</span>
                                   </div>
-                                  <div className="mt-1.5 flex gap-1.5">
-                                    {c.sources.map(s => (
-                                      <span key={s} className="rounded-full border border-[#1F2A27] px-2 py-0.5 text-[9px] text-[#5A7A6A]">{s}</span>
-                                    ))}
-                                  </div>
+                                  <FrequencyBar value={c.frequency} color={freqColor} />
                                 </div>
-                              </div>
-                            </motion.div>
-                          ))}
+                              </motion.div>
+                            );
+                          })}
                         </div>
                       </div>
 
                       {/* ── Seção 3: Reddit ───────────────────── */}
-                      <div className="rounded-2xl border border-[#1F2A27] bg-[#111615] p-5">
+                      <div className="rounded-2xl border border-[#1F2A27] bg-[#111615] p-6">
                         <SectionHeader icon={MessageCircle} title="O que as pessoas estão pedindo no Reddit" badge="3 de 10 posts (grátis)" color="#FF6633" />
                         <div className="space-y-3">
                           {result.redditPosts.map((p, i) => (
                             <motion.div key={i} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
                               className="rounded-xl border border-[#1F2A27] bg-[#0D1210] p-4">
-                              <div className="mb-2 flex items-center justify-between">
-                                <span className="rounded-full bg-[#FF6633]/15 px-2.5 py-0.5 text-[10px] font-bold text-[#FF6633]">{p.subreddit}</span>
-                                <span className="text-[11px] text-[#5A7A6A]">↑ {p.upvotes.toLocaleString()} upvotes</span>
+                              <div className="mb-2 flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span className="flex-shrink-0 rounded-full bg-[#FF6633]/15 px-2.5 py-0.5 text-[10px] font-bold text-[#FF6633]">{p.subreddit}</span>
+                                  {p.translated && (
+                                    <span className="text-[9px] italic text-[#3A5A4A]">traduzido do inglês</span>
+                                  )}
+                                </div>
+                                <span className="flex-shrink-0 text-[11px] text-[#5A7A6A]">↑ {fmtUpvotes(p.upvotes)}</span>
                               </div>
-                              <p className="text-sm italic text-[#B0C8BC] leading-relaxed">"{p.text}"</p>
+                              <div className="h-[56px] overflow-hidden">
+                                <p className="line-clamp-2 text-sm italic text-[#B0C8BC] leading-relaxed">"{p.text}"</p>
+                              </div>
                               <div className="mt-2.5 flex items-center gap-1.5">
                                 <ArrowRight className="h-3 w-3 text-[#00FF88]" />
                                 <p className="text-[11px] font-semibold text-[#00FF88]">Gap: {p.gap}</p>
@@ -490,7 +557,7 @@ function DashboardPage() {
                       </div>
 
                       {/* ── Seção 4: iOS vs Android ───────────── */}
-                      <div className="rounded-2xl border border-[#1F2A27] bg-[#111615] p-5">
+                      <div className="rounded-2xl border border-[#1F2A27] bg-[#111615] p-6">
                         <SectionHeader icon={Smartphone} title="Gaps exclusivos por plataforma" color="#00AAFF" />
                         <p className="mb-4 text-xs text-[#5A7A6A]">O que usuários de cada plataforma reclamam de forma diferente</p>
                         <div className="grid gap-4 sm:grid-cols-2">
@@ -538,34 +605,50 @@ function DashboardPage() {
                       </div>
 
                       {/* ── Seção 5: MVP ──────────────────────── */}
-                      <div className="rounded-2xl border border-[#00FF88]/20 bg-[#00FF88]/5 p-5">
+                      <div className="rounded-2xl border border-[#00FF88]/20 bg-[#00FF88]/5 p-6">
                         <SectionHeader icon={Lightbulb} title="Sugestão de MVP" color="#00FF88" />
-                        <p className="mb-4 text-sm leading-relaxed text-[#7A9E8E]">{result.mvp.description}</p>
+                        <p className="mb-5 text-sm leading-relaxed text-[#7A9E8E]">{result.mvp.description}</p>
 
-                        <div className="space-y-3">
-                          {result.mvp.features.map((f, i) => (
-                            <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                              className="rounded-xl border border-[#00FF88]/15 bg-[#0D1210] p-4">
-                              <div className="flex items-start gap-3">
-                                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF88]/20 text-xs font-black text-[#00FF88]">{i+1}</div>
-                                <div>
-                                  <p className="text-sm font-bold text-[#E6F1EC]">{f.title}</p>
-                                  <p className="mt-0.5 text-xs text-[#7A9E8E]">{f.description}</p>
-                                  <p className="mt-1.5 text-[11px] font-semibold text-[#00FF88]">✓ Resolve: {f.solves}</p>
+                        <div className="grid gap-4 sm:grid-cols-3">
+                          {result.mvp.features.map((f, i) => {
+                            const Icon = MVP_ICONS[i % MVP_ICONS.length];
+                            return (
+                              <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
+                                className="flex flex-col rounded-xl border border-[#00FF88]/15 bg-[#0D1210] p-4">
+                                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#00FF88]/15">
+                                  <Icon className="h-5 w-5 text-[#00FF88]" />
                                 </div>
-                              </div>
-                            </motion.div>
-                          ))}
+                                <p className="text-sm font-bold text-[#E6F1EC]">{f.title}</p>
+                                <p className="mt-1 flex-1 text-xs text-[#7A9E8E] leading-relaxed">{f.description}</p>
+                                <div className="mt-3 rounded-lg bg-[#00FF88]/10 px-2.5 py-1.5">
+                                  <p className="text-[10px] font-semibold text-[#00FF88]">✓ {f.solves}</p>
+                                </div>
+                              </motion.div>
+                            );
+                          })}
                         </div>
 
-                        <div className="mt-4 rounded-xl border border-[#1F2A27] bg-[#0D1210] p-3">
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-[#3A5A4A] mb-1">Stack sugerida</p>
-                          <p className="text-sm text-[#7A9E8E]">{result.mvp.stack}</p>
+                        <div className="mt-5 rounded-xl border border-[#1F2A27] bg-[#0D1210] p-4">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-[#3A5A4A] mb-2.5">Stack sugerida</p>
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {parseStack(result.mvp.stack).map(tech => {
+                              const c = TECH_COLORS[tech] ?? "#5A7A6A";
+                              return (
+                                <span key={tech} className="rounded-full border px-3 py-1 text-[11px] font-semibold"
+                                  style={{ color: c, borderColor: `${c}40`, background: `${c}15` }}>
+                                  {tech}
+                                </span>
+                              );
+                            })}
+                          </div>
+                          {result.mvp.stack.includes("—") && (
+                            <p className="text-[11px] text-[#5A7A6A] leading-relaxed">{result.mvp.stack.split("—")[1]?.trim()}</p>
+                          )}
                         </div>
                       </div>
 
                       {/* ── Seção 6: Bloqueados ───────────────── */}
-                      <div className="rounded-2xl border border-[#1F2A27] bg-[#111615] p-5">
+                      <div className="rounded-2xl border border-[#1F2A27] bg-[#111615] p-6">
                         <SectionHeader icon={Lock} title="Dados disponíveis no plano Pro" color="#FFAA00" />
                         <div className="space-y-2">
                           {[

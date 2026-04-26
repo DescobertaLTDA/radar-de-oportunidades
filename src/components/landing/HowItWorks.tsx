@@ -1,44 +1,43 @@
 import { motion } from "framer-motion";
-import { Cpu, Search, TrendingUp } from "lucide-react";
+import { Search, Zap, Rocket } from "lucide-react";
 
 const steps = [
   {
     icon: Search,
     n: "01",
-    title: "Rastreamos",
-    desc: "Monitoramos Reddit, App Store, G2, fóruns e redes sociais em busca de dores reais e reclamações frequentes.",
+    title: "Digite sua ideia",
+    desc: "Escreva um nicho ou ideia de app. Pode ser vago — nosso motor entende o contexto e já sabe onde procurar.",
   },
   {
-    icon: Cpu,
+    icon: Zap,
     n: "02",
-    title: "Analisamos",
-    desc: "Nossa IA agrupa, classifica e pontua cada oportunidade por volume de dor, concorrência e potencial de monetização.",
+    title: "Receba os dados",
+    desc: "Em segundos você vê reviews reais, score de dor, concorrência e volume de reclamações dos apps existentes.",
   },
   {
-    icon: TrendingUp,
+    icon: Rocket,
     n: "03",
-    title: "Entregamos",
-    desc: "Você recebe um ranking semanal das melhores lacunas de mercado, com tudo que precisa para começar a construir.",
+    title: "Descubra a oportunidade",
+    desc: "Nosso score mostra se o nicho está aberto, saturado ou com uma janela clara. Você decide com dados, não com achismo.",
   },
 ];
 
 export function HowItWorks() {
   return (
-    <section id="features" className="relative border-b border-border py-24">
+    <section id="features" className="section-divider py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="label-caps text-primary">Como funciona</span>
-          <h2 className="mt-3 text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">
-            Do ruído à oportunidade — em segundos
+        <div className="mx-auto mb-14 max-w-2xl text-center">
+          <span className="label-caps text-[#00FF88]">Como funciona</span>
+          <h2 className="mt-3 text-3xl font-bold text-[#E6F1EC] sm:text-4xl">
+            Três passos. Decisão certa.
           </h2>
-          <p className="mt-4 text-muted-foreground">
-            Um motor de dados rodando 24/7 para você nunca mais construir
-            no escuro.
+          <p className="mt-4 text-[#5A7A6A]">
+            Do zero à clareza em menos de 60 segundos.
           </p>
         </div>
 
-        <div className="relative mt-16 grid gap-6 lg:grid-cols-3">
-          {/* linha conectora */}
+        <div className="relative grid gap-6 lg:grid-cols-3">
+          {/* connector line */}
           <svg
             className="pointer-events-none absolute left-0 right-0 top-12 hidden lg:block"
             height="2"
@@ -46,14 +45,8 @@ export function HowItWorks() {
             preserveAspectRatio="none"
           >
             <line
-              x1="15%"
-              x2="85%"
-              y1="1"
-              y2="1"
-              stroke="currentColor"
-              strokeWidth="1"
-              strokeDasharray="4 6"
-              className="text-border"
+              x1="16%" x2="84%" y1="1" y2="1"
+              stroke="#1F2A27" strokeWidth="1" strokeDasharray="5 7"
             />
           </svg>
 
@@ -62,18 +55,18 @@ export function HowItWorks() {
               key={s.n}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="relative rounded-xl border border-border bg-card p-6"
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.4, delay: i * 0.12 }}
+              className="relative rounded-2xl border border-[#1F2A27] bg-[#111615]
+                         p-6 shadow-[var(--shadow-card)]"
             >
-              <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary-muted text-primary">
-                <s.icon className="h-5 w-5" />
+              <div className="mb-4 inline-flex h-11 w-11 items-center justify-center
+                              rounded-xl bg-[#00FF88]/10">
+                <s.icon className="h-5 w-5 text-[#00FF88]" />
               </div>
-              <span className="label-caps text-muted-foreground">{s.n}</span>
-              <h3 className="mt-1 text-xl font-semibold text-foreground">
-                {s.title}
-              </h3>
-              <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+              <span className="label-caps text-[#3A5A4A]">{s.n}</span>
+              <h3 className="mt-1 text-lg font-bold text-[#E6F1EC]">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[#5A7A6A]">{s.desc}</p>
             </motion.div>
           ))}
         </div>

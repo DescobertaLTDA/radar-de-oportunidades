@@ -1,173 +1,153 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Lock, ShieldCheck, Sparkles } from "lucide-react";
+import { Check, Lock, ShieldCheck, Zap } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 const plans = [
   {
-    name: "Free",
-    price: { monthly: 0, yearly: 0 },
-    desc: "Para validar a ideia.",
+    id: "explorar",
+    name: "Explorar",
+    price: "Grátis",
+    priceNote: "para sempre",
+    desc: "Valide a ideia antes de investir.",
     features: [
-      { text: "Top 2 oportunidades da semana", on: true },
-      { text: "Score parcial", on: true },
-      { text: "Comunidade pública", on: true },
-      { text: "Relatório mensal", on: true },
-      { text: "Stack técnica sugerida", on: false },
-      { text: "Estimativa de receita", on: false },
-      { text: "Alertas de nicho", on: false },
+      { text: "Top 5 apps por nicho",            on: true  },
+      { text: "Score de oportunidade parcial",    on: true  },
+      { text: "Filtro por categoria",             on: true  },
+      { text: "1 análise por dia",                on: true  },
+      { text: "Relatório completo de reviews",    on: false },
+      { text: "Alertas de nicho",                 on: false },
+      { text: "Exportar dados (CSV/JSON)",        on: false },
     ],
     cta: "Começar grátis",
+    href: "/register",
     featured: false,
   },
   {
-    name: "Pro",
-    price: { monthly: 97, yearly: 67 },
-    desc: "Para founders sérios.",
+    id: "validar",
+    name: "Validar",
+    price: "R$39",
+    priceNote: "/mês",
+    desc: "Para founders que decidem com dados.",
     features: [
-      { text: "Ranking completo (40+/sem)", on: true },
-      { text: "Score completo: dor + concorrência + monetização", on: true },
-      { text: "Stack técnica sugerida", on: true },
-      { text: "Estimativa de receita mensal", on: true },
-      { text: "3 alertas de nicho personalizados", on: true },
-      { text: "Co-founder matching", on: true },
-      { text: "Histórico 90 dias", on: true },
+      { text: "Todos os apps e nichos",           on: true  },
+      { text: "Score completo (dor + concorrência)", on: true },
+      { text: "Reclamações reais por app",        on: true  },
+      { text: "Análises ilimitadas",              on: true  },
+      { text: "Relatório completo de reviews",    on: true  },
+      { text: "3 alertas de nicho",               on: true  },
+      { text: "Exportar dados (CSV/JSON)",        on: false },
     ],
-    cta: "Assinar Pro",
+    cta: "Assinar agora",
+    href: "/register",
     featured: true,
   },
   {
-    name: "Enterprise",
-    price: { monthly: 497, yearly: 347 },
-    desc: "Para times e investidores.",
+    id: "dominar",
+    name: "Dominar",
+    price: "R$97",
+    priceNote: "/mês",
+    desc: "Para times e builders sérios.",
     features: [
-      { text: "Tudo do Pro", on: true },
-      { text: "Relatórios customizados por segmento", on: true },
-      { text: "API de acesso aos dados", on: true },
-      { text: "Alertas ilimitados", on: true },
-      { text: "Histórico 12 meses", on: true },
-      { text: "5 usuários por conta", on: true },
-      { text: "Suporte via WhatsApp", on: true },
+      { text: "Tudo do Validar",                  on: true  },
+      { text: "Alertas ilimitados",               on: true  },
+      { text: "Exportar dados (CSV/JSON)",         on: true  },
+      { text: "API de acesso aos dados",          on: true  },
+      { text: "Histórico 12 meses",               on: true  },
+      { text: "5 usuários por conta",             on: true  },
+      { text: "Suporte via WhatsApp",             on: true  },
     ],
     cta: "Falar com a equipe",
+    href: "/register",
     featured: false,
   },
 ];
 
 export function Pricing() {
-  const [yearly, setYearly] = useState(false);
-
   return (
-    <section id="pricing" className="border-b border-border py-24">
+    <section id="pricing" className="section-divider py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="label-caps text-primary">Preços</span>
-          <h2 className="mt-3 text-3xl font-bold text-foreground sm:text-4xl lg:text-5xl">
+        <div className="mx-auto mb-12 max-w-2xl text-center">
+          <span className="label-caps text-[#00FF88]">Preços</span>
+          <h2 className="mt-3 text-3xl font-bold text-[#E6F1EC] sm:text-4xl">
             Simples. Sem surpresa.
           </h2>
-          <p className="mt-4 text-muted-foreground">
-            Escolha mensal ou anual. Cancele quando quiser.
+          <p className="mt-3 text-[#5A7A6A]">
+            Comece grátis. Escale quando precisar. Cancele quando quiser.
           </p>
-
-          <div className="mt-8 inline-flex items-center gap-1 rounded-full border border-border bg-card p-1">
-            <button
-              onClick={() => setYearly(false)}
-              className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${
-                !yearly ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-              }`}
-            >
-              Mensal
-            </button>
-            <button
-              onClick={() => setYearly(true)}
-              className={`relative rounded-full px-5 py-2 text-sm font-medium transition-colors ${
-                yearly ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-              }`}
-            >
-              Anual
-              <span className="ml-2 rounded-full bg-[var(--success)]/20 px-1.5 py-0.5 text-[10px] font-semibold text-[var(--success)]">
-                -30%
-              </span>
-            </button>
-          </div>
         </div>
 
-        <div className="mt-12 grid gap-5 lg:grid-cols-3">
-          {plans.map((p, i) => {
-            const price = yearly ? p.price.yearly : p.price.monthly;
-            return (
-              <motion.div
-                key={p.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-                className={`relative flex flex-col rounded-xl border bg-card p-6 ${
+        <div className="grid gap-5 lg:grid-cols-3 lg:items-start">
+          {plans.map((p, i) => (
+            <motion.div
+              key={p.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.1 }}
+              className={`relative flex flex-col rounded-2xl border p-6
+                shadow-[var(--shadow-card)] ${
+                p.featured
+                  ? "border-[#00FF88]/50 bg-[#111615] shadow-[var(--shadow-glow)] lg:scale-[1.04]"
+                  : "border-[#1F2A27] bg-[#111615]"
+              }`}
+            >
+              {p.featured && (
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2
+                                 rounded-full bg-[#00FF88] px-3.5 py-1
+                                 text-[11px] font-bold text-[#0B0F0C]">
+                  Mais popular
+                </span>
+              )}
+
+              <h3 className="text-lg font-bold text-[#E6F1EC]">{p.name}</h3>
+              <p className="mt-0.5 text-xs text-[#5A7A6A]">{p.desc}</p>
+
+              <div className="mt-5 flex items-baseline gap-1.5">
+                <span className={`text-4xl font-extrabold ${
+                  p.featured ? "text-[#00FF88]" : "text-[#E6F1EC]"
+                }`}>
+                  {p.price}
+                </span>
+                <span className="text-sm text-[#5A7A6A]">{p.priceNote}</span>
+              </div>
+
+              <ul className="mt-6 flex flex-1 flex-col gap-2.5">
+                {p.features.map(f => (
+                  <li key={f.text} className="flex items-start gap-2 text-sm">
+                    {f.on ? (
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#00FF88]" />
+                    ) : (
+                      <Lock className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#3A5A4A]" />
+                    )}
+                    <span className={f.on ? "text-[#B0C8BC]" : "text-[#3A5A4A]"}>
+                      {f.text}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                to={p.href as "/register"}
+                className={`mt-7 inline-flex h-11 items-center justify-center gap-2
+                            rounded-lg px-5 text-sm font-bold transition-all ${
                   p.featured
-                    ? "border-primary shadow-[var(--shadow-glow)] lg:scale-[1.03]"
-                    : "border-border"
+                    ? "btn-neon"
+                    : "border border-[#1F2A27] text-[#7A9E8E] hover:border-[#00FF88]/30 hover:text-[#E6F1EC]"
                 }`}
               >
-                {p.featured && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-                    Mais popular
-                  </span>
-                )}
-                <h3 className="text-xl font-semibold text-foreground">{p.name}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{p.desc}</p>
-                <div className="mt-5 flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-foreground">
-                    R${price}
-                  </span>
-                  <span className="text-sm text-muted-foreground">/mês</span>
-                </div>
-                {yearly && p.price.monthly > 0 && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    cobrado anualmente
-                  </p>
-                )}
-
-                <ul className="mt-6 flex flex-1 flex-col gap-2.5">
-                  {p.features.map((f) => (
-                    <li
-                      key={f.text}
-                      className="flex items-start gap-2 text-sm"
-                    >
-                      {f.on ? (
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--success)]" />
-                      ) : (
-                        <Lock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                      )}
-                      <span
-                        className={
-                          f.on ? "text-foreground" : "text-muted-foreground"
-                        }
-                      >
-                        {f.text}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  className={`mt-7 inline-flex h-11 items-center justify-center gap-1.5 rounded-md px-5 text-sm font-medium transition-colors ${
-                    p.featured
-                      ? "bg-primary text-primary-foreground hover:bg-[var(--primary-hover)]"
-                      : "border border-border bg-transparent text-foreground hover:bg-[var(--bg-secondary)]"
-                  }`}
-                >
-                  {p.featured && <Sparkles className="h-3.5 w-3.5" />}
-                  {p.cta}
-                </button>
-              </motion.div>
-            );
-          })}
+                {p.featured && <Zap className="h-3.5 w-3.5" />}
+                {p.cta}
+              </Link>
+            </motion.div>
+          ))}
         </div>
 
-        <div className="mt-10 flex items-center justify-center gap-2 rounded-xl border border-border bg-[var(--bg-secondary)] p-4 text-sm text-muted-foreground">
-          <ShieldCheck className="h-5 w-5 shrink-0 text-[var(--success)]" />
+        <div className="mt-10 flex items-center justify-center gap-2.5 rounded-xl
+                        border border-[#1F2A27] bg-[#0E1311] p-4 text-sm text-[#5A7A6A]">
+          <ShieldCheck className="h-5 w-5 flex-shrink-0 text-[#00FF88]" />
           <p>
-            <span className="text-foreground font-medium">Garantia de 7 dias.</span>{" "}
-            Se não encontrar pelo menos uma ideia que valha seu tempo, devolvemos 100%.
+            <span className="font-semibold text-[#E6F1EC]">Garantia de 7 dias.</span>{" "}
+            Se não encontrar pelo menos uma oportunidade útil, devolvemos 100%.
           </p>
         </div>
       </div>

@@ -5,10 +5,10 @@ import { Logo } from "./Logo";
 import { useAuth } from "@/lib/auth";
 
 const links = [
-  { label: "Features", href: "#features" },
+  { label: "Apps", href: "#apps" },
+  { label: "Como funciona", href: "#features" },
   { label: "Preços", href: "#pricing" },
-  { label: "Builders", href: "#builders" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Analisar ideia", href: "#buscar" },
 ];
 
 export function Navbar() {
@@ -64,7 +64,7 @@ export function Navbar() {
               </Link>
               <Link
                 to="/register"
-                className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-[var(--primary-hover)]"
+                className="btn-neon inline-flex h-9 items-center rounded-lg px-4 text-sm"
               >
                 Começar grátis
               </Link>
